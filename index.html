@@ -1,458 +1,176 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>每日打卡</title>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>每日打卡</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px}
-body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:#f0f2f5;color:#1f2937;line-height:1.6;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
-input,button,textarea{font-family:inherit;font-size:inherit}
-a{color:#3b82f6;text-decoration:none}
-.app{max-width:520px;margin:0 auto;padding:16px}
-
-/* header */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,PingFang SC,Microsoft YaHei,sans-serif;background:#f0f2f5;color:#1f2937;line-height:1.6;min-height:100vh;padding:16px}
+.app{max-width:520px;margin:0 auto}
 .header{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:16px;padding:20px 24px;margin-bottom:16px}
 .header-date{font-size:14px;opacity:.85;margin-bottom:4px}
-.header-title{font-size:22px;font-weight:700;letter-spacing:.5px}
+.header-title{font-size:22px;font-weight:700}
 .header-progress{margin-top:14px;display:flex;align-items:center;gap:12px}
-.header-progress .stat{font-size:24px;font-weight:700;white-space:nowrap}
-.header-progress .stat small{font-size:14px;font-weight:400;opacity:.7}
-.progress-track{flex:1;height:8px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden}
-.progress-fill{height:100%;background:#fff;border-radius:99px;transition:width .35s ease;width:0%}
-
-/* card */
-.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
-.card-title{padding:16px 20px 0;font-size:14px;font-weight:600;color:#6b7280;letter-spacing:.3px}
-.task-list{list-style:none}
-.task-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #f3f4f6;transition:background .15s}
+.header-progress .num{font-size:24px;font-weight:700}
+.bar{flex:1;height:8px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;background:#fff;border-radius:99px;transition:width .35s;width:0%}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;margin-bottom:16px}
+.card-title{padding:16px 20px 0;font-size:14px;font-weight:600;color:#6b7280}
+.task-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #f3f4f6}
 .task-item:last-child{border-bottom:none}
-.task-item:hover{background:#f9fafb}
-.task-item.done .task-name{text-decoration:line-through;color:#9ca3af}
-
-.task-check{width:24px;height:24px;border-radius:6px;border:2px solid #d1d5db;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-.task-check:hover{border-color:#3b82f6;background:#eff6ff}
-.task-check.done{background:#3b82f6;border-color:#3b82f6}
-.task-check.done::after{content:"";display:block;width:8px;height:12px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-1px)}
-
-.task-name{flex:1;font-size:15px;user-select:none;cursor:pointer}
-.task-badge{flex-shrink:0;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500}
+.task-item.done .name{text-decoration:line-through;color:#9ca3af}
+.check{width:24px;height:24px;border-radius:6px;border:2px solid #d1d5db;cursor:pointer;flex-shrink:0}
+.check:hover{border-color:#3b82f6;background:#eff6ff}
+.check.done{background:#3b82f6;border-color:#3b82f6}
+.check.done::after{content:"";width:8px;height:12px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-1px)}
+.name{flex:1;font-size:15px;cursor:pointer}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500;flex-shrink:0}
 .badge-work{background:#fef3c7;color:#92400e}
-.badge-other{background:#e0e7ff;color:#3730a3}
-
-.task-del{width:28px;height:28px;border:none;background:transparent;color:#d1d5db;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:16px;opacity:0;flex-shrink:0}
-.task-item:hover .task-del{opacity:1}
-.task-del:hover{color:#ef4444;background:#fef2f2}
-
-/* add form */
+.badge-life{background:#e0e7ff;color:#3730a3}
+.del{width:28px;height:28px;border:none;background:transparent;color:#d1d5db;border-radius:6px;cursor:pointer;font-size:16px;opacity:0;flex-shrink:0}
+.task-item:hover .del{opacity:1}
+.del:hover{color:#ef4444;background:#fef2f2}
 .add-area{border-top:1px solid #f3f4f6;padding:16px 20px;display:flex;gap:8px;flex-wrap:wrap}
-.add-area input[type="text"]{flex:1;min-width:140px;padding:10px 14px;border:2px solid #e5e7eb;border-radius:8px;outline:none;transition:border-color .2s;font-size:14px}
-.add-area input[type="text"]:focus{border-color:#3b82f6}
+.add-area input{flex:1;min-width:140px;padding:10px 14px;border:2px solid #e5e7eb;border-radius:8px;outline:none;font-size:14px}
+.add-area input:focus{border-color:#3b82f6}
 .add-area label{display:flex;align-items:center;gap:4px;font-size:13px;color:#6b7280;cursor:pointer;white-space:nowrap}
-.add-area label input[type="checkbox"]{width:16px;height:16px;accent-color:#3b82f6}
-.add-btn{padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:background .2s;font-size:14px}
-.add-btn:hover{background:#2563eb}
-
-/* footer */
-.footer{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
-.footer button{flex:1;min-width:100px;padding:12px;border:2px solid #e5e7eb;background:#fff;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;color:#4b5563;transition:all .2s}
+.add-area label input{width:16px;height:16px;accent-color:#3b82f6}
+.btn-add{padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px}
+.btn-add:hover{background:#2563eb}
+.footer{display:flex;gap:8px}
+.footer button{flex:1;padding:12px;border:2px solid #e5e7eb;background:#fff;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;color:#4b5563}
 .footer button:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
-
-/* empty */
-.empty-state{text-align:center;padding:40px 20px;color:#9ca3af}
-.empty-state p{margin-top:8px;font-size:14px}
-
-/* modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s}
-.modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:slideUp .3s}
+.empty{text-align:center;padding:40px 20px;color:#9ca3af;font-size:14px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
 .modal-header h2{font-size:18px;font-weight:700}
-.modal-close{width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6b7280;transition:all .15s}
-.modal-close:hover{background:#e5e7eb;color:#1f2937}
+.close-btn{width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;font-size:18px;color:#6b7280}
+.close-btn:hover{background:#e5e7eb;color:#1f2937}
 .modal-body{padding:16px 24px 24px}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-
-/* review */
-.review-section{margin-bottom:20px}
-.review-section h3{font-size:14px;font-weight:600;color:#6b7280;margin-bottom:10px}
-.review-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;font-size:14px;margin:4px;background:#f9fafb}
-.review-chip.done{background:#ecfdf5;color:#065f46}
-.review-chip.pending{background:#fef2f2;color:#991b1b}
-.review-divider{height:1px;background:#f3f4f6;margin:16px 0}
-.review-textarea{width:100%;min-height:120px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;outline:none;resize:vertical;font-size:14px;transition:border-color .2s}
-.review-textarea:focus{border-color:#3b82f6}
-.review-save{padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:background .2s;font-size:14px;margin-top:12px}
-.review-save:hover{background:#2563eb}
-.review-save:disabled{background:#9ca3af;cursor:not-allowed}
-
-/* history */
+.section{margin-bottom:20px}
+.section h3{font-size:14px;font-weight:600;color:#6b7280;margin-bottom:10px}
+.chip{display:inline-flex;padding:6px 14px;border-radius:99px;font-size:14px;margin:4px;background:#f9fafb}
+.chip.done{background:#ecfdf5;color:#065f46}
+.chip.pending{background:#fef2f2;color:#991b1b}
+.divider{height:1px;background:#f3f4f6;margin:16px 0}
+.log-text{width:100%;min-height:120px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;outline:none;resize:vertical;font-size:14px}
+.log-text:focus{border-color:#3b82f6}
+.btn-save{padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;margin-top:12px}
+.btn-save:hover{background:#2563eb}
 .history-item{padding:16px 0;border-bottom:1px solid #f3f4f6}
-.history-item:last-child{border-bottom:none}
 .history-date{font-size:13px;font-weight:600;color:#6b7280}
 .history-stats{font-size:13px;color:#9ca3af;margin-top:2px}
 .history-tasks{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
-.history-summary{margin-top:8px;background:#f9fafb;padding:10px 14px;border-radius:8px;font-size:13px;color:#4b5563;line-height:1.5;white-space:pre-wrap}
-.history-empty{text-align:center;padding:30px 0;color:#9ca3af}
-
-/* toast */
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast.show{opacity:1}
-</style>
-</head>
-<body>
+.history-log{margin-top:8px;padding:10px 14px;border-radius:8px;font-size:13px;color:#4b5563;white-space:pre-wrap;background:#f9fafb}
+</style></head><body>
 <div class="app">
-  <div class="header">
-    <div class="header-date" id="headerDate"></div>
-    <div class="header-title">每日打卡</div>
-    <div class="header-progress">
-      <div class="stat" id="progressNum">0/<small>0</small></div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">今日任务</div>
-    <ul class="task-list" id="taskList"></ul>
-    <div class="add-area">
-      <input type="text" id="taskInput" placeholder="输入新任务…" maxlength="50">
-      <label><input type="checkbox" id="workToggle"> 工作任务</label>
-      <button class="add-btn">+ 添加</button>
-    </div>
-  </div>
-  <div class="footer">
-    <button onclick="openReview()">今日复盘</button>
-    <button onclick="openHistory()">历史记录</button>
-  </div>
-</div>
-
-<!-- history modal -->
-<div class="modal-overlay" id="historyOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>历史记录</h2>
-      <button class="modal-close">x</button>
-    </div>
-    <div class="modal-body" id="historyBody"><div class="history-empty">加载中…</div></div>
-  </div>
-</div>
-
-<!-- review modal -->
-<div class="modal-overlay" id="reviewOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>今日工作复盘</h2>
-      <button class="modal-close">x</button>
-    </div>
-    <div class="modal-body" id="reviewBody"><p style="color:#9ca3af;font-size:14px">加载中…</p></div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
+<div class="header">
+<div class="header-date" id="dateDisplay"></div>
+<div class="header-title">每日打卡</div>
+<div class="header-progress">
+<div class="num" id="progressNum">0/<small>0</small></div>
+<div class="bar"><div class="bar-fill" id="progressFill"></div></div>
+</div></div>
+<div class="card">
+<div class="card-title">今日任务</div>
+<div id="taskList"></div>
+<div class="add-area">
+<input type="text" id="taskInput" placeholder="输入新任务..." maxlength="50">
+<label><input type="checkbox" id="workToggle"> 工作</label>
+<button class="btn-add" onclick="addTask()">+ 添加</button>
+</div></div>
+<div class="footer">
+<button onclick="openReview()">今日复盘</button>
+<button onclick="openHistory()">历史记录</button>
+</div></div>
+<!-- History --><div class="overlay" id="historyOverlay" onclick="if(this==event.target)closeHistory()"><div class="modal">
+<div class="modal-header"><h2>历史记录</h2><button class="close-btn" onclick="closeHistory()">x</button></div>
+<div class="modal-body" id="historyBody"><div class="empty">加载中...</div></div></div></div>
+<!-- Review --><div class="overlay" id="reviewOverlay" onclick="if(this==event.target)closeReview()"><div class="modal">
+<div class="modal-header"><h2>今日工作复盘</h2><button class="close-btn" onclick="closeReview()">x</button></div>
+<div class="modal-body" id="reviewBody"><div class="empty">加载中...</div></div></div></div>
+<div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none"></div>
 <script>
-/* ═══ LocalStorage Storage Layer ═══════════════════════ */
-const STORAGE_KEY = 'daily_checkin_data';
-const WEEKDAYS = ['日','一','二','三','四','五','六'];
-
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return { tasks:[], nextTaskId:1, checkins:{}, summaries:{} };
+var DAYS=["日","一","二","三","四","五","六"];
+var KEY="daka_data";
+function ld(){try{return JSON.parse(localStorage.getItem(KEY))||{t:[],n:1,c:{},l:{}};}catch(e){return{t:[],n:1,c:{},l:{}};}}
+function sv(d){localStorage.setItem(KEY,JSON.stringify(d));}
+function td(){return new Date().toISOString().slice(0,10);}
+function es(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+function msg(s){var t=document.getElementById("toast");t.textContent=s;t.style.opacity="1";clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity="0";},2000);}
+function rd(){
+  var date=td(),data=ld(),tasks=data.t,tasks=data.t,checked=data.c[date]||[],list=document.getElementById("taskList");
+  if(!tasks.length){list.innerHTML='<div class="empty">添加你的第一个任务吧</div>';}
+  else{var html="";for(var i=0;i<tasks.length;i++){var t=tasks[i],done=checked.indexOf(t.id)>=0;
+    html+='<div class="task-item'+(done?" done":"")+'">';
+    html+='<div class="check'+(done?" done":"")+'" onclick="toggle('+t.id+')"></div>';
+    html+='<span class="name" onclick="toggle('+t.id+')">'+es(t.name)+'</span>';
+    html+=(t.w?'<span class="badge badge-work">工作</span>':'<span class="badge badge-life">生活</span>');
+    html+='<button class="del" onclick="delTask('+t.id+')">x</button>';
+    html+="</div>";}
+    list.innerHTML=html;}
+  var total=tasks.length,done=checked.length;
+  document.getElementById("progressNum").innerHTML=done+"/<small>"+total+"</small>";
+  document.getElementById("progressFill").style.width=total?(done/total*100)+"%":"0%";
+  var d=new Date();document.getElementById("dateDisplay").textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日 星期"+DAYS[d.getDay()];
 }
-
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function today() {
-  return new Date().toISOString().slice(0,10);
-}
-
-function nowHour() {
-  return new Date().getHours();
-}
-
-/* ═══ Helpers ═══════════════════════════════════════ */
-const $ = s => document.querySelector(s);
-
-function toast(msg) {
-  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2000);
-}
-
-function esc(s) {
-  const d=document.createElement('div'); d.textContent=s; return d.innerHTML;
-}
-
-/* ═══ UI: Header ══════════════════════════════════ */
-function updateDateDisplay() {
-  const d=new Date();
-  $('#headerDate').textContent=
-    d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 星期'+WEEKDAYS[d.getDay()];
-}
-updateDateDisplay();
-
-/* ═══ UI: Task List ═══════════════════════════════ */
-function getAllTasks() { return loadData().tasks; }
-function getCheckedIds(date) {
-  const data = loadData();
-  return data.checkins[date || today()] || [];
-}
-
-function render() {
-  const date = today();
-  const data = loadData();
-  const tasks = data.tasks;
-  const checkedIds = data.checkins[date] || [];
-  const ul = $('#taskList');
-
-  if (!tasks.length) {
-    ul.innerHTML = '<li class="empty-state">添加你的第一个任务吧</li>';
-  } else {
-    ul.innerHTML = tasks.map(t => {
-      const done = checkedIds.includes(t.id);
-      const badge = t.isWorkTask
-        ? '<span class="task-badge badge-work">工作</span>'
-        : '<span class="task-badge badge-other">生活</span>';
-      return '<li class="task-item'+(done?' done':'')+'" data-id="'+t.id+'">'
-        +'<div class="task-check'+(done?' done':'')+'" onclick="toggle('+t.id+')"></div>'
-        +'<span class="task-name" onclick="toggle('+t.id+')">'+esc(t.name)+'</span>'
-        +badge
-        +'<button class="task-del" onclick="delTask('+t.id+')" title="删除">x</button>'
-        +'</li>';
-    }).join('');
+function toggle(id){var data=ld(),date=td();if(!data.c[date])data.c[date]=[];var idx=data.c[date].indexOf(id);if(idx<0)data.c[date].push(id);else data.c[date].splice(idx,1);sv(data);rd();}
+function addTask(){var inp=document.getElementById("taskInput"),name=inp.value.trim();if(!name){msg("请输入任务名称");return;}var data=ld();data.t.push({id:data.n++,name:name,w:document.getElementById("workToggle").checked});sv(data);inp.value="";document.getElementById("workToggle").checked=false;rd();msg("已添加");}
+document.getElementById("taskInput").onkeydown=function(e){if(e.key=="Enter")addTask();};
+function delTask(id){if(!confirm("确认删除？"))return;var data=ld();data.t=data.t.filter(function(t){return t.id!=id;});for(var d in data.c){data.c[d]=data.c[d].filter(function(i){return i!=id;});}sv(data);rd();msg("已删除");}
+function openReview(){
+  document.getElementById("reviewOverlay").classList.add("open");
+  var data=ld(),date=td(),checked=data.c[date]||[],work=data.t.filter(function(t){return t.w;});
+  var done=work.filter(function(t){return checked.indexOf(t.id)>=0;});
+  var pending=work.filter(function(t){return checked.indexOf(t.id)<0;});
+  var total=work.length,dc=done.length,pct=total?Math.round(dc/total*100):0;
+  var html='<div class="section" style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;padding:16px 20px;color:#fff;margin-bottom:20px">';
+  html+="<div style=\"font-size:13px;opacity:.85\">今日工作完成率</div>";
+  html+="<div style=\"font-size:32px;font-weight:700;margin:4px 0\">"+dc+"/"+total+"</div>";
+  html+="<div style=\"height:6px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden\"><div style=\"height:100%;width:"+pct+"%;background:#fff;border-radius:99px\"></div></div>";
+  html+="<div style=\"font-size:13px;opacity:.85;margin-top:6px\">";
+  if(pct==100)html+="全部完成，太棒了！";else if(pct>=60)html+="主要工作已完成！";else if(pct>=30)html+="部分已完成，明天再接再厉";else html+="今天进展不大，明天加油！";
+  html+="</div></div>";
+  if(done.length){html+='<div class="section"><h3>今日收获 <span style="color:#065f46;font-size:12px">已完成'+dc+'项</span></h3>';for(var i=0;i<done.length;i++)html+='<span class="chip done">'+es(done[i].name)+'</span>';html+="</div>";}
+  if(pending.length){html+='<div class="section"><h3>今日不足 <span style="color:#991b1b;font-size:12px">未完成'+pending.length+'项</span></h3>';for(var i=0;i<pending.length;i++)html+='<span class="chip pending">'+es(pending[i].name)+'</span>';html+='<p style="color:#9ca3af;font-size:12px;margin-top:8px">建议优先安排到明天</p></div>';}
+  if(!total){html+='<div class="section"><p style="color:#9ca3af;text-align:center;padding:16px 0">请先添加工作任务</p></div>';}
+  html+='<div class="divider"></div><div class="section"><h3>今日工作日志</h3>';
+  var autoLog="";
+  if(total>0){
+    var dn=[];for(var i=0;i<done.length;i++)dn.push(done[i].name);
+    var pn=[];for(var i=0;i<pending.length;i++)pn.push(pending[i].name);
+    autoLog+="今日工作总结："+String.fromCharCode(10);
+    if(done.length)autoLog+="收获：完成"+dn.join("、")+"。"+String.fromCharCode(10);
+    if(pending.length)autoLog+="不足："+pn.join("、")+"尚未完成。"+String.fromCharCode(10);
+    autoLog+=String.fromCharCode(10)+"明日计划："+String.fromCharCode(10);
+    if(pending.length)autoLog+="1. 继续："+pn.join("、")+String.fromCharCode(10);
+    autoLog+="2. 其他："+String.fromCharCode(10);
   }
-
-  // Progress
-  const total = tasks.length;
-  const done = checkedIds.length;
-  $('#progressNum').innerHTML = done+'/<small>'+total+'</small>';
-  $('#progressFill').style.width = total ? ((done/total)*100)+'%' : '0%';
+  var existing=data.l[date]||"";
+  html+='<textarea class="log-text" id="logText" placeholder="写下今天的总结...">'+es(existing||autoLog)+'</textarea>';
+  html+='<button class="btn-save" onclick="saveReview()">保存日志</button>';
+  document.getElementById("reviewBody").innerHTML=html;
 }
-
-/* ═══ Toggle checkin ═════════════════════════════ */
-function toggle(taskId) {
-  const data = loadData();
-  const date = today();
-  if (!data.checkins[date]) data.checkins[date] = [];
-  const idx = data.checkins[date].indexOf(taskId);
-  if (idx === -1) data.checkins[date].push(taskId);
-  else data.checkins[date].splice(idx, 1);
-  saveData(data);
-  render();
+function saveReview(){var btn=document.querySelector(".btn-save");btn.disabled=true;btn.textContent="保存...";var content=document.getElementById("logText").value.trim();var data=ld();data.l[td()]=content;sv(data);btn.textContent="已保存";setTimeout(function(){closeReview();msg("复盘已保存");},600);}
+function closeReview(){document.getElementById("reviewOverlay").classList.remove("open");}
+function openHistory(){
+  document.getElementById("historyOverlay").classList.add("open");
+  var data=ld(),dates={};for(var d in data.c)dates[d]=1;for(var d in data.l)dates[d]=1;
+  var sorted=Object.keys(dates).sort().reverse().slice(0,90);
+  if(!sorted.length){document.getElementById("historyBody").innerHTML='<div class="empty">还没有打卡记录</div>';return;}
+  var html="";
+  for(var i=0;i<sorted.length;i++){var d=sorted[i],checked=data.c[d]||[],chips=[];
+    for(var j=0;j<checked.length;j++){var t=data.t.find(function(x){return x.id==checked[j];});if(t)chips.push('<span class="chip done">'+es(t.name)+'</span>');}
+    var log=data.l[d]||"",total=data.t.length;
+    html+='<div class="history-item"><div class="history-date">'+d+'</div><div class="history-stats">完成'+checked.length+'/'+total+'</div>';
+    if(chips.length)html+='<div class="history-tasks">'+chips.join("")+'</div>';
+    if(log)html+='<div class="history-log">'+es(log)+'</div>';
+    html+="</div>";}
+  document.getElementById("historyBody").innerHTML=html;
 }
-
-/* ═══ Add task ═══════════════════════════════════ */
-function addTask() {
-  const inp = $('#taskInput');
-  const name = inp.value.trim();
-  if (!name) { toast('请输入任务名称'); return; }
-  const isWorkTask = $('#workToggle').checked;
-  const data = loadData();
-  data.tasks.push({ id: data.nextTaskId++, name, isWorkTask });
-  saveData(data);
-  inp.value = '';
-  $('#workToggle').checked = false;
-  render();
-  toast('任务已添加');
-}
-
-
-/* ═══ Delete task ════════════════════════════════ */
-function delTask(taskId) {
-  if (!confirm('确认删除此任务？')) return;
-  const data = loadData();
-  data.tasks = data.tasks.filter(t => t.id !== taskId);
-  Object.keys(data.checkins).forEach(d => {
-    data.checkins[d] = data.checkins[d].filter(id => id !== taskId);
-  });
-  saveData(data);
-  render();
-  toast('已删除');
-}
-
-/* ═══ History ════════════════════════════════════ */
-function openHistory() {
-  const overlay = $('#historyOverlay');
-  const body = $('#historyBody');
-  overlay.classList.add('open');
-  body.innerHTML = '<div class="history-empty">加载中…</div>';
-
-  const data = loadData();
-  const dates = [...new Set([...Object.keys(data.checkins), ...Object.keys(data.summaries)])]
-    .sort().reverse().slice(0, 90);
-
-  if (!dates.length) {
-    body.innerHTML = '<div class="history-empty">还没有打卡记录</div>';
-    return;
-  }
-
-  body.innerHTML = dates.map(d => {
-    const checked = data.checkins[d] || [];
-    const checkedTasks = checked.map(id => data.tasks.find(t => t.id === id)).filter(Boolean);
-    const chips = checkedTasks.map(t =>
-      '<span class="review-chip done">'+esc(t.name)+'</span>'
-    ).join('');
-    const total = data.tasks.length;
-    const bar = total ? checked.length+'/'+total : '-';
-    const summary = data.summaries[d] || '';
-    return '<div class="history-item">'
-      +'<div class="history-date">'+d+'</div>'
-      +'<div class="history-stats">完成 '+bar+'</div>'
-      +(chips ? '<div class="history-tasks">'+chips+'</div>' : '')
-      +(summary ? '<div class="history-summary">'+esc(summary)+'</div>' : '')
-      +'</div>';
-  }).join('');
-}
-function closeHistory() { $('#historyOverlay').classList.remove('open'); }
-
-/* ═══ Review ═════════════════════════════════════ */
-function openReview() {
-  const overlay = $('#reviewOverlay');
-  const body = $('#reviewBody');
-  overlay.classList.add('open');
-  const data = loadData();
-  const date = today();
-  const checked = data.checkins[date] || [];
-  const workTasks = data.tasks.filter(t => t.isWorkTask);
-  const done = workTasks.filter(t => checked.includes(t.id));
-  const pending = workTasks.filter(t => !checked.includes(t.id));
-  const total = workTasks.length;
-  const doneCount = done.length;
-  const pct = total ? Math.round(doneCount/total*100) : 0;
-  let html = '';
-  html += '<div style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;padding:16px 20px;color:#fff;margin-bottom:20px">';
-  html += '<div style="font-size:13px;opacity:.85">今日工作完成率</div>';
-  html += '<div style="font-size:32px;font-weight:700;margin:4px 0">'+doneCount+'/'+total+'</div>';
-  html += '<div style="height:6px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden">';
-  html += '<div style="height:100%;width:'+pct+'%;background:#fff;border-radius:99px"></div></div>';
-  html += '<div style="font-size:13px;opacity:.85;margin-top:6px">';
-  if (pct === 100) html += '全部完成，太棒了！';
-  else if (pct >= 60) html += '主要工作已完成！';
-  else if (pct >= 30) html += '部分已完成，明天再接再厉';
-  else html += '今天进展不大，明天加油！';
-  html += '</div></div>';
-  if (done.length) {
-    html += '<div class="review-section"><h3>今日收获 <span style="color:#065f46;font-size:12px">'+doneCount+'项</span></h3>';
-    html += done.map(t => '<span class="review-chip done">'+esc(t.name)+'</span>').join('');
-    html += '</div>';
-  }
-  if (pending.length) {
-    html += '<div class="review-section"><h3>今日不足 <span style="color:#991b1b;font-size:12px">'+pending.length+'项</span></h3>';
-    html += pending.map(t => '<span class="review-chip pending">'+esc(t.name)+'</span>').join('');
-    html += '<p style="color:#9ca3af;font-size:12px;margin-top:8px">建议优先安排到明天</p></div>';
-  }
-  if (!total) {
-    html += '<p style="color:#9ca3af;text-align:center;padding:16px 0">请先添加工作任务</p>';
-  }
-  html += '<div class="review-divider"></div>';
-  const doneNames = done.map(t => t.name).join('、');
-  const pendingNames = pending.map(t => t.name).join('、');
-  let autoSummary = '';
-  if (total > 0) {
-    autoSummary += '今日工作总结：
-';
-    if (done.length) autoSummary += '收获：完成' + doneNames + '。
-';
-    if (pending.length) autoSummary += '不足：' + pendingNames + '尚未完成。
-';
-    autoSummary += '
-明日计划：
-';
-    if (pending.length) autoSummary += '1. 继续：' + pendingNames + '
-';
-    autoSummary += '2. 其他：
-';
-  }
-  html += '<div class="review-section"><h3>今日工作日志</h3>';
-  const existing = data.summaries[date] || '';
-  html += '<textarea class="review-textarea" id="reviewText" placeholder="写下总结...">'+esc(existing || autoSummary)+'</textarea></div>';
-  html += '<button class="review-save">保存日志</button>';
-  body.innerHTML = html;
-}
-
-function saveReview() {
-  const btn = document.querySelector('.review-save');
-  btn.disabled = true; btn.textContent = '保存...';
-  const content = $('#reviewText').value.trim();
-  const data = loadData();
-  data.summaries[today()] = content;
-  saveData(data);
-  btn.textContent = '已保存';
-  setTimeout(() => { closeReview(); toast('复盘已保存'); }, 600);
-}function closeReview() { $('#reviewOverlay').classList.remove('open'); }
-
-/* ═══ Auto review popup (20:00) ═════════════════ */
-function autoReviewCheck() {
-  const hour = nowHour();
-  if (hour < 20) return;
-  const data = loadData();
-  if (data.summaries[today()] && data.summaries[today()].trim()) return;
-  if (!data.tasks.some(t => t.isWorkTask)) return;
-  if ($('#reviewOverlay').classList.contains('open')) return;
-  if ($('#historyOverlay').classList.contains('open')) return;
-  openReview();
-}
-
-setTimeout(autoReviewCheck, 1500);
-setInterval(autoReviewCheck, 120000);
-
-document.addEventListener('click', function(ev) {
-  var el = ev.target;
-  while (el && el !== document.body) {
-    if (el.classList.contains('task-check') || el.classList.contains('task-name')) {
-      var li = el.closest('.task-item');
-      if (li) toggle(parseInt(li.getAttribute('data-id')));
-      ev.preventDefault(); return;
-    }
-    if (el.classList.contains('task-del')) {
-      var li = el.closest('.task-item');
-      if (li) delTask(parseInt(li.getAttribute('data-id')));
-      ev.preventDefault(); return;
-    }
-    if (el.classList.contains('add-btn')) { addTask(); ev.preventDefault(); return; }
-    if (el.classList.contains('review-save')) { saveReview(); ev.preventDefault(); return; }
-    if (el.classList.contains('modal-close')) {
-      var o = el.closest('.modal-overlay'); if (o) o.classList.remove('open');
-      ev.preventDefault(); return;
-    }
-    if (el.classList.contains('modal-overlay')) { el.classList.remove('open'); return; }
-    var txt = el.textContent.trim();
-    if (txt === '今日复盘') { openReview(); ev.preventDefault(); return; }
-    if (txt === '历史记录') { openHistory(); ev.preventDefault(); return; }
-    el = el.parentElement;
-  }
-});
-
-document.addEventListener('click', function(ev) {
-  var el = ev.target;
-  while (el && el !== document.body) {
-    if (el.classList.contains('task-check') || el.classList.contains('task-name')) {
-      var li = el.closest('.task-item');
-      if (li) toggle(parseInt(li.getAttribute('data-id')));
-      ev.preventDefault(); return;
-    }
-    if (el.classList.contains('task-del')) {
-      var li = el.closest('.task-item');
-      if (li) delTask(parseInt(li.getAttribute('data-id')));
-      ev.preventDefault(); return;
-    }
-    if (el.classList.contains('add-btn')) { addTask(); ev.preventDefault(); return; }
-    if (el.classList.contains('review-save')) { saveReview(); ev.preventDefault(); return; }
-    if (el.classList.contains('modal-overlay')) { el.classList.remove('open'); return; }
-    el = el.parentElement;
-  }
-});
-
-document.addEventListener('keydown', function(ev2) {
-  if (ev2.key === 'Enter' && document.activeElement && document.activeElement.id === 'taskInput') {
-    addTask(); ev2.preventDefault();
-  }
-});
-
-render();
+function closeHistory(){document.getElementById("historyOverlay").classList.remove("open");}
+setTimeout(function(){var h=new Date().getHours();if(h<20)return;var data=ld();if(data.l[td()]&&data.l[td()].trim())return;if(!data.t.some(function(t){return t.w;}))return;openReview();},2000);
+setInterval(function(){var h=new Date().getHours();if(h<20)return;var data=ld();if(data.l[td()]&&data.l[td()].trim())return;if(!data.t.some(function(t){return t.w;}))return;if(!document.getElementById("reviewOverlay").classList.contains("open"))openReview();},120000);
+rd();
 </script>
+</body></html>
