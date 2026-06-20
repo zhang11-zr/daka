@@ -219,10 +219,10 @@ function render() {
         ? '<span class="task-badge badge-work">工作</span>'
         : '<span class="task-badge badge-other">生活</span>';
       return '<li class="task-item'+(done?' done':'')+'" data-id="'+t.id+'">'
-        +'<div class="task-check'+(done?' done':'')+'"></div>'
-        +'<span class="task-name">'+esc(t.name)+'</span>'
+        +'<div class="task-check'+(done?' done':'')+'" onclick="toggle('+t.id+')"></div>'
+        +'<span class="task-name" onclick="toggle('+t.id+')">'+esc(t.name)+'</span>'
         +badge
-        +'<button class="task-del" title="删除">x</button>'
+        +'<button class="task-del" onclick="delTask('+t.id+')" title="删除">x</button>'
         +'</li>';
     }).join('');
   }
