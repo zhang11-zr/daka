@@ -3,177 +3,141 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>每日打卡</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,PingFang SC,Microsoft YaHei,sans-serif;background:#f0f2f5;color:#1f2937;line-height:1.6;min-height:100vh;padding:16px}
+body{font-family:-apple-system,PingFang SC,Microsoft YaHei,sans-serif;background:#f0f2f5;color:#1f2937;padding:16px}
 .app{max-width:520px;margin:0 auto}
 .header{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-radius:16px;padding:20px 24px;margin-bottom:16px}
 .header-date{font-size:14px;opacity:.85;margin-bottom:4px}
 .header-title{font-size:22px;font-weight:700}
 .header-progress{margin-top:14px;display:flex;align-items:center;gap:12px}
-.header-progress .num{font-size:24px;font-weight:700}
+.num{font-size:24px;font-weight:700}
 .bar{flex:1;height:8px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden}
-.bar-fill{height:100%;background:#fff;border-radius:99px;transition:width .35s;width:0%}
+.bar-fill{height:100%;background:#fff;border-radius:99px;transition:width .35s}
 .card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;margin-bottom:16px}
 .card-title{padding:16px 20px 0;font-size:14px;font-weight:600;color:#6b7280}
 .task-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #f3f4f6}
 .task-item:last-child{border-bottom:none}
 .task-item.done .name{text-decoration:line-through;color:#9ca3af}
-.check{width:24px;height:24px;border-radius:6px;border:2px solid #d1d5db;cursor:pointer;flex-shrink:0}
-.check:hover{border-color:#3b82f6;background:#eff6ff}
+.check{width:24px;height:24px;border-radius:6px;border:2px solid #d1d5db;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .check.done{background:#3b82f6;border-color:#3b82f6}
-.check.done::after{content:"";width:8px;height:12px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-1px)}
+.check.done::after{content:"";width:8px;height:12px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .name{flex:1;font-size:15px;cursor:pointer}
 .badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500;flex-shrink:0}
 .badge-work{background:#fef3c7;color:#92400e}
 .badge-life{background:#e0e7ff;color:#3730a3}
-.del{width:28px;height:28px;border:none;background:transparent;color:#d1d5db;border-radius:6px;cursor:pointer;font-size:16px;opacity:0;flex-shrink:0}
+.del{width:28px;height:28px;border:none;background:transparent;color:#d1d5db;cursor:pointer;font-size:16px;opacity:0;flex-shrink:0}
 .task-item:hover .del{opacity:1}
 .del:hover{color:#ef4444;background:#fef2f2}
 .add-area{border-top:1px solid #f3f4f6;padding:16px 20px;display:flex;gap:8px;flex-wrap:wrap}
 .add-area input{flex:1;min-width:140px;padding:10px 14px;border:2px solid #e5e7eb;border-radius:8px;outline:none;font-size:14px}
-.add-area input:focus{border-color:#3b82f6}
-.add-area label{display:flex;align-items:center;gap:4px;font-size:13px;color:#6b7280;cursor:pointer;white-space:nowrap}
+.add-area label{display:flex;align-items:center;gap:4px;font-size:13px;color:#6b7280;cursor:pointer}
 .add-area label input{width:16px;height:16px;accent-color:#3b82f6}
-.btn-add{padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px}
-.btn-add:hover{background:#2563eb}
+.btn-add{padding:10px 20px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer}
 .footer{display:flex;gap:8px}
-.footer button{flex:1;padding:12px;border:2px solid #e5e7eb;background:#fff;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;color:#4b5563}
-.footer button:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
-.empty{text-align:center;padding:40px 20px;color:#9ca3af;font-size:14px}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.footer button{flex:1;padding:12px;border:2px solid #e5e7eb;background:#fff;border-radius:10px;cursor:pointer;font-size:14px;color:#4b5563}
+.empty{padding:40px 20px;color:#9ca3af;font-size:14px;text-align:center}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center;padding:20px}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0}
-.modal-header h2{font-size:18px;font-weight:700}
-.close-btn{width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;font-size:18px;color:#6b7280}
-.close-btn:hover{background:#e5e7eb;color:#1f2937}
+.modal-header{display:flex;justify-content:space-between;padding:20px 24px 0}
+.modal-header h2{font-size:18px}
+.close-btn{width:32px;height:32px;border:none;background:#f3f4f6;border-radius:8px;cursor:pointer;font-size:18px}
 .modal-body{padding:16px 24px 24px}
 .section{margin-bottom:20px}
 .section h3{font-size:14px;font-weight:600;color:#6b7280;margin-bottom:10px}
-.chip{display:inline-flex;padding:6px 14px;border-radius:99px;font-size:14px;margin:4px;background:#f9fafb}
+.chip{display:inline-block;padding:6px 14px;border-radius:99px;font-size:14px;margin:4px;background:#f9fafb}
 .chip.done{background:#ecfdf5;color:#065f46}
 .chip.pending{background:#fef2f2;color:#991b1b}
-.divider{height:1px;background:#f3f4f6;margin:16px 0}
-.log-text{width:100%;min-height:120px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;outline:none;resize:vertical;font-size:14px}
-.log-text:focus{border-color:#3b82f6}
-.btn-save{padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;margin-top:12px}
-.btn-save:hover{background:#2563eb}
+.log-text{width:100%;min-height:120px;padding:12px;border:2px solid #e5e7eb;border-radius:8px;outline:none;font-size:14px}
+.btn-save{padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;margin-top:12px}
 .history-item{padding:16px 0;border-bottom:1px solid #f3f4f6}
 .history-date{font-size:13px;font-weight:600;color:#6b7280}
-.history-stats{font-size:13px;color:#9ca3af;margin-top:2px}
-.history-tasks{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
-.history-log{margin-top:8px;padding:10px 14px;border-radius:8px;font-size:13px;color:#4b5563;white-space:pre-wrap;background:#f9fafb}
+.history-stats{font-size:13px;color:#9ca3af}
+.history-tasks{margin-top:4px}
+.history-log{margin-top:8px;padding:10px;border-radius:8px;font-size:13px;color:#4b5563;white-space:pre-wrap;background:#f9fafb}
 </style></head><body>
 <div class="app">
-<div class="header">
-<div class="header-date" id="dateDisplay"></div>
-<div class="header-title">每日打卡</div>
-<div class="header-progress">
-<div class="num" id="progressNum">0/<small>0</small></div>
-<div class="bar"><div class="bar-fill" id="progressFill"></div></div>
-</div></div>
-<div class="card">
-<div class="card-title">今日任务</div>
-<div id="taskList"></div>
-<div class="add-area">
-<input type="text" id="taskInput" placeholder="输入新任务..." maxlength="50">
-<label><input type="checkbox" id="workToggle"> 工作</label>
-<button class="btn-add" onclick="addTask()">+ 添加</button>
-</div></div>
-<div class="footer">
-<button onclick="openReview()">今日复盘</button>
-<button onclick="openHistory()">历史记录</button>
-</div></div>
-<!-- History --><div class="overlay" id="historyOverlay" onclick="if(this==event.target)closeHistory()"><div class="modal">
-<div class="modal-header"><h2>历史记录</h2><button class="close-btn" onclick="closeHistory()">x</button></div>
+<div class="header"><div class="header-date" id="dateDisplay"></div><div class="header-title">每日打卡</div>
+<div class="header-progress"><div class="num" id="progressNum">0/<small>0</small></div><div class="bar"><div class="bar-fill" id="progressFill"></div></div></div></div>
+<div class="card"><div class="card-title">今日任务</div><div id="taskList"></div>
+<div class="add-area"><input type="text" id="taskInput" placeholder="输入新任务..." maxlength="50">
+<label><input type="checkbox" id="workToggle"> 工作任务</label>
+<button class="btn-add" onclick="addTask()">+ 添加</button></div></div>
+<div class="footer"><button onclick="openReview()">今日复盘</button><button onclick="openHistory()">历史记录</button></div></div>
+<div class="overlay" id="historyOverlay" onclick="if(this==event.target)closeHistory()"><div class="modal">
+<div class="modal-header"><h2>历史记录</h2><button class="close-btn" onclick="closeHistory()">&times;</button></div>
 <div class="modal-body" id="historyBody"><div class="empty">加载中...</div></div></div></div>
-<!-- Review --><div class="overlay" id="reviewOverlay" onclick="if(this==event.target)closeReview()"><div class="modal">
-<div class="modal-header"><h2>今日工作复盘</h2><button class="close-btn" onclick="closeReview()">x</button></div>
+<div class="overlay" id="reviewOverlay" onclick="if(this==event.target)closeReview()"><div class="modal">
+<div class="modal-header"><h2>今日工作复盘</h2><button class="close-btn" onclick="closeReview()">&times;</button></div>
 <div class="modal-body" id="reviewBody"><div class="empty">加载中...</div></div></div></div>
-<div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none"></div>
+<div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 24px;border-radius:10px;z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none"></div>
 <script>
-var DAYS=["日","一","二","三","四","五","六"];
-var KEY="daka_data";
-function ld(){try{return JSON.parse(localStorage.getItem(KEY))||{t:[],n:1,c:{},l:{}};}catch(e){return{t:[],n:1,c:{},l:{}};}}
-function sv(d){localStorage.setItem(KEY,JSON.stringify(d));}
+var D=["日","一","二","三","四","五","六"],K="dk_data";
+function ld(){try{return JSON.parse(localStorage.getItem(K))||{t:[],n:1,c:{},l:{}};}catch(e){return{t:[],n:1,c:{},l:{}};}}
+function sv(d){localStorage.setItem(K,JSON.stringify(d));}
 function td(){return new Date().toISOString().slice(0,10);}
 function es(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
 function msg(s){var t=document.getElementById("toast");t.textContent=s;t.style.opacity="1";clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity="0";},2000);}
 function rd(){
-  var date=td(),data=ld(),tasks=data.t,tasks=data.t,checked=data.c[date]||[],list=document.getElementById("taskList");
+  var date=td(),data=ld(),tasks=data.t,checked=data.c[date]||[],list=document.getElementById("taskList");
   if(!tasks.length){list.innerHTML='<div class="empty">添加你的第一个任务吧</div>';}
-  else{var html="";for(var i=0;i<tasks.length;i++){var t=tasks[i],done=checked.indexOf(t.id)>=0;
-    html+='<div class="task-item'+(done?" done":"")+'">';
-    html+='<div class="check'+(done?" done":"")+'" onclick="toggle('+t.id+')"></div>';
-    html+='<span class="name" onclick="toggle('+t.id+')">'+es(t.name)+'</span>';
-    html+=(t.w?'<span class="badge badge-work">工作任务</span>':'<span class="badge badge-life">生活</span>');
-    html+='<button class="del" onclick="delTask('+t.id+')">x</button>';
-    html+="</div>";}
-    list.innerHTML=html;}
+  else{var h="";for(var i=0;i<tasks.length;i++){var t=tasks[i],done=checked.indexOf(t.id)>=0;
+    h+='<div class="task-item'+(done?" done":"")+'"><div class="check'+(done?" done":"")+'" onclick="toggle('+t.id+')"></div>';
+    h+='<span class="name" onclick="toggle('+t.id+')">'+es(t.name)+'</span>';
+    h+=(t.w?'<span class="badge badge-work">工作任务</span>':'<span class="badge badge-life">生活</span>');
+    h+='<button class="del" onclick="delTask('+t.id+')">&times;</button></div>';}
+    list.innerHTML=h;}
   var total=tasks.length,done=checked.length;
   document.getElementById("progressNum").innerHTML=done+"/<small>"+total+"</small>";
   document.getElementById("progressFill").style.width=total?(done/total*100)+"%":"0%";
-  var d=new Date();document.getElementById("dateDisplay").textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日 星期"+DAYS[d.getDay()];
-}
-function toggle(id){var data=ld(),date=td();if(!data.c[date])data.c[date]=[];var idx=data.c[date].indexOf(id);if(idx<0)data.c[date].push(id);else data.c[date].splice(idx,1);sv(data);rd();}
-function addTask(){var inp=document.getElementById("taskInput"),name=inp.value.trim();if(!name){msg("请输入任务名称");return;}var data=ld();data.t.push({id:data.n++,name:name,w:document.getElementById("workToggle").checked});sv(data);inp.value="";document.getElementById("workToggle").checked=false;rd();msg("已添加");}
+  var d=new Date();document.getElementById("dateDisplay").textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日 星期"+D[d.getDay()];}
+function toggle(id){var d=ld();var date=td();if(!d.c[date])d.c[date]=[];var i=d.c[date].indexOf(id);if(i<0)d.c[date].push(id);else d.c[date].splice(i,1);sv(d);rd();}
+function addTask(){var i=document.getElementById("taskInput"),n=i.value.trim();if(!n){msg("请输入任务名称");return;}var d=ld();d.t.push({id:d.n++,name:n,w:document.getElementById("workToggle").checked});sv(d);i.value="";document.getElementById("workToggle").checked=false;rd();msg("已添加");}
 document.getElementById("taskInput").onkeydown=function(e){if(e.key=="Enter")addTask();};
-function delTask(id){if(!confirm("确认删除？"))return;var data=ld();data.t=data.t.filter(function(t){return t.id!=id;});for(var d in data.c){data.c[d]=data.c[d].filter(function(i){return i!=id;});}sv(data);rd();msg("已删除");}
-function openReview(){
-  document.getElementById("reviewOverlay").classList.add("open");
-  var data=ld(),date=td(),checked=data.c[date]||[],work=data.t.filter(function(t){return t.w;});
-  var done=work.filter(function(t){return checked.indexOf(t.id)>=0;});
-  var pending=work.filter(function(t){return checked.indexOf(t.id)<0;});
-  var total=work.length,dc=done.length,pct=total?Math.round(dc/total*100):0;
-  var html='<div class="section" style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;padding:16px 20px;color:#fff;margin-bottom:20px">';
-  html+="<div style=\"font-size:13px;opacity:.85\">今日工作完成率</div>";
-  html+="<div style=\"font-size:32px;font-weight:700;margin:4px 0\">"+dc+"/"+total+"</div>";
-  html+="<div style=\"height:6px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden\"><div style=\"height:100%;width:"+pct+"%;background:#fff;border-radius:99px\"></div></div>";
-  html+="<div style=\"font-size:13px;opacity:.85;margin-top:6px\">";
-  if(pct==100)html+="全部完成，太棒了！";else if(pct>=60)html+="主要工作已完成！";else if(pct>=30)html+="部分已完成，明天再接再厉";else html+="今天进展不大，明天加油！";
-  html+="</div></div>";
-  if(done.length){html+='<div class="section"><h3>今日收获 <span style="color:#065f46;font-size:12px">已完成'+dc+'项</span></h3>';for(var i=0;i<done.length;i++)html+='<span class="chip done">'+es(done[i].name)+'</span>';html+="</div>";}
-  if(pending.length){html+='<div class="section"><h3>今日不足 <span style="color:#991b1b;font-size:12px">未完成'+pending.length+'项</span></h3>';for(var i=0;i<pending.length;i++)html+='<span class="chip pending">'+es(pending[i].name)+'</span>';html+='<p style="color:#9ca3af;font-size:12px;margin-top:8px">建议优先安排到明天</p></div>';}
-  if(!total){html+='<div class="section"><p style="color:#9ca3af;text-align:center;padding:16px 0">请先添加工作任务</p></div>';}
-  html+='<div class="divider"></div><div class="section"><h3>今日工作日志</h3>';
-  var autoLog="";
+function delTask(id){if(!confirm("确认删除？"))return;var d=ld();d.t=d.t.filter(function(t){return t.id!=id;});for(var k in d.c){d.c[k]=d.c[k].filter(function(i){return i!=id;});}sv(d);rd();msg("已删除");}
+function openReview(){document.getElementById("reviewOverlay").classList.add("open");
+  var d=ld(),date=td(),ck=d.c[date]||[],wk=d.t.filter(function(t){return t.w;});
+  var dn=wk.filter(function(t){return ck.indexOf(t.id)>=0;});
+  var pn=wk.filter(function(t){return ck.indexOf(t.id)<0;});
+  var total=wk.length,dc=dn.length,pct=total?Math.round(dc/total*100):0;
+  var h='<div class="section" style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:12px;padding:16px 20px;color:#fff;margin-bottom:20px"><div style="font-size:13px">今日工作完成率</div><div style="font-size:32px;font-weight:700;margin:4px 0">'+dc+'/'+total+'</div><div style="height:6px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#fff;border-radius:99px"></div></div><div style="font-size:13px;margin-top:6px">';
+  if(pct==100)h+="全部完成！";else if(pct>=60)h+="主要工作已完成！";else if(pct>=30)h+="部分已完成，明天继续！";else h+="今天进展不大，明天加油！";h+="</div></div>";
+  if(dn.length){h+='<div class="section"><h3>今日收获</h3>';for(var i=0;i<dn.length;i++)h+='<span class="chip done">'+es(dn[i].name)+'</span>';h+="</div>";}
+  if(pn.length){h+='<div class="section"><h3>今日不足</h3>';for(var i=0;i<pn.length;i++)h+='<span class="chip pending">'+es(pn[i].name)+'</span>';h+='<p style="color:#9ca3af;font-size:12px;margin-top:8px">建议优先安排到明天</p></div>';}
+  if(!total)h+='<div class="section"><p style="color:#9ca3af;text-align:center;padding:16px 0">请先添加工作任务</p></div>';
+  h+='<div class="divider" style="height:1px;background:#f3f4f6;margin:16px 0"></div><div class="section"><h3>今日工作日志</h3>';
+  var log="";
   if(total>0){
-    var dn=[];for(var i=0;i<done.length;i++)dn.push(done[i].name);
-    var pn=[];for(var i=0;i<pending.length;i++)pn.push(pending[i].name);
-    autoLog+=String.fromCharCode(10)+"=== 今日工作总结 ==="+String.fromCharCode(10)+String.fromCharCode(10);
-    autoLog+="【收获】"+String.fromCharCode(10);
-    if(done.length){autoLog+="今日完成工作任务"+done.length+"项："+dn.join("、")+String.fromCharCode(10);}else{autoLog+="今日未完成任何工作任务"+String.fromCharCode(10);}
-    autoLog+=String.fromCharCode(10);
-    autoLog+="【不足】"+String.fromCharCode(10);
-    if(pending.length){autoLog+="未完成工作任务"+pending.length+"项："+pn.join("、")+String.fromCharCode(10);}else{autoLog+="所有工作任务均已完成，表现优秀！"+String.fromCharCode(10);}
-    autoLog+=String.fromCharCode(10);
-    autoLog+="【明日计划】"+String.fromCharCode(10);
-    if(pending.length)autoLog+="- 继续推进："+pn.join("、")+String.fromCharCode(10);
-    autoLog+="- 其他安排："+String.fromCharCode(10);
-  var existing=data.l[date]||"";
-  html+='<textarea class="log-text" id="logText" placeholder="写下今天的总结...">'+es(existing||autoLog)+'</textarea>';
-  html+='<button class="btn-save" onclick="saveReview()">保存日志</button>';
-  document.getElementById("reviewBody").innerHTML=html;
-}
-function saveReview(){var btn=document.querySelector(".btn-save");btn.disabled=true;btn.textContent="保存...";var content=document.getElementById("logText").value.trim();var data=ld();data.l[td()]=content;sv(data);btn.textContent="已保存";setTimeout(function(){closeReview();msg("复盘已保存");},600);}
+    var dnn=[];for(var i=0;i<dn.length;i++)dnn.push(dn[i].name);
+    var pnn=[];for(var i=0;i<pn.length;i++)pnn.push(pn[i].name);
+    log+="=== 今日工作总结 ==="+String.fromCharCode(10)+String.fromCharCode(10);
+    log+="【收获】"+String.fromCharCode(10);
+    if(dn.length){log+="今日完成工作"+dn.length+"项："+dnn.join("、")+String.fromCharCode(10);for(var i=0;i<dn.length;i++){log+="- 已完成："+dnn[i]+String.fromCharCode(10);}}else{log+="今日未完成任何工作任务"+String.fromCharCode(10);}
+    log+=String.fromCharCode(10);
+    log+="【不足】"+String.fromCharCode(10);
+    if(pn.length){log+="未完成工作"+pn.length+"项："+pnn.join("、")+String.fromCharCode(10);for(var i=0;i<pn.length;i++){log+="- 待跟进："+pnn[i]+String.fromCharCode(10);}}else{log+="所有工作任务均已完成，表现优秀！"+String.fromCharCode(10);}
+    log+=String.fromCharCode(10);
+    log+="【明日计划】"+String.fromCharCode(10);
+    if(pn.length)log+="- 继续推进："+pnn.join("、")+String.fromCharCode(10);
+    log+="- 其他安排："+String.fromCharCode(10);
+  }
+  var ex=d.l[date]||"";
+  h+='<textarea class="log-text" id="logText" placeholder="写下今天的总结...">'+es(ex||log)+'</textarea></div>';
+  h+='<button class="btn-save" onclick="saveReview()">保存日志</button>';
+  document.getElementById("reviewBody").innerHTML=h;}
+function saveReview(){var btn=document.querySelector(".btn-save");btn.disabled=true;btn.textContent="保存...";var c=document.getElementById("logText").value.trim();var d=ld();d.l[td()]=c;sv(d);btn.textContent="已保存";setTimeout(function(){closeReview();msg("复盘已保存");},600);}
 function closeReview(){document.getElementById("reviewOverlay").classList.remove("open");}
-function openHistory(){
-  document.getElementById("historyOverlay").classList.add("open");
-  var data=ld(),dates={};for(var d in data.c)dates[d]=1;for(var d in data.l)dates[d]=1;
-  var sorted=Object.keys(dates).sort().reverse().slice(0,90);
-  if(!sorted.length){document.getElementById("historyBody").innerHTML='<div class="empty">还没有打卡记录</div>';return;}
-  var html="";
-  for(var i=0;i<sorted.length;i++){var d=sorted[i],checked=data.c[d]||[],chips=[];
-    for(var j=0;j<checked.length;j++){var t=data.t.find(function(x){return x.id==checked[j];});if(t)chips.push('<span class="chip done">'+es(t.name)+'</span>');}
-    var log=data.l[d]||"",total=data.t.length;
-    html+='<div class="history-item"><div class="history-date">'+d+'</div><div class="history-stats">完成'+checked.length+'/'+total+'</div>';
-    if(chips.length)html+='<div class="history-tasks">'+chips.join("")+'</div>';
-    if(log)html+='<div class="history-log">'+es(log)+'</div>';
-    html+="</div>";}
-  document.getElementById("historyBody").innerHTML=html;
-}
+function openHistory(){document.getElementById("historyOverlay").classList.add("open");
+  var d=ld(),ds={};for(var k in d.c)ds[k]=1;for(var k in d.l)ds[k]=1;var s=Object.keys(ds).sort().reverse().slice(0,90);
+  if(!s.length){document.getElementById("historyBody").innerHTML='<div class="empty">还没有打卡记录</div>';return;}
+  var h="";for(var i=0;i<s.length;i++){var dd=s[i],ck=d.c[dd]||[],ch=[];
+    for(var j=0;j<ck.length;j++){var t=d.t.find(function(x){return x.id==ck[j];});if(t)ch.push('<span class="chip done">'+es(t.name)+'</span>');}
+    var lg=d.l[dd]||"",tl=d.t.length;
+    h+='<div class="history-item"><div class="history-date">'+dd+'</div><div class="history-stats">完成'+ck.length+'/'+tl+'</div>';
+    if(ch.length)h+='<div class="history-tasks">'+ch.join("")+'</div>';
+    if(lg)h+='<div class="history-log">'+es(lg)+'</div>';h+="</div>";}
+  document.getElementById("historyBody").innerHTML=h;}
 function closeHistory(){document.getElementById("historyOverlay").classList.remove("open");}
-setTimeout(function(){var h=new Date().getHours();if(h<20)return;var data=ld();if(data.l[td()]&&data.l[td()].trim())return;if(!data.t.some(function(t){return t.w;}))return;openReview();},2000);
-setInterval(function(){var h=new Date().getHours();if(h<20)return;var data=ld();if(data.l[td()]&&data.l[td()].trim())return;if(!data.t.some(function(t){return t.w;}))return;if(!document.getElementById("reviewOverlay").classList.contains("open"))openReview();},120000);
+setTimeout(function(){var h=new Date().getHours();if(h<20)return;var d=ld();if(d.l[td()]&&d.l[td()].trim())return;if(!d.t.some(function(t){return t.w;}))return;openReview();},2000);
+setInterval(function(){var h=new Date().getHours();if(h<20)return;var d=ld();if(d.l[td()]&&d.l[td()].trim())return;if(!d.t.some(function(t){return t.w;}))return;if(!document.getElementById("reviewOverlay").classList.contains("open"))openReview();},120000);
 rd();
-</script>
-</body></html>
+</script></body></html>
