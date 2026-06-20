@@ -105,7 +105,7 @@ function rd(){
     html+='<div class="task-item'+(done?" done":"")+'">';
     html+='<div class="check'+(done?" done":"")+'" onclick="toggle('+t.id+')"></div>';
     html+='<span class="name" onclick="toggle('+t.id+')">'+es(t.name)+'</span>';
-    html+=(t.w?'<span class="badge badge-work">工作</span>':'<span class="badge badge-life">生活</span>');
+    html+=(t.w?'<span class="badge badge-work">工作任务</span>':'<span class="badge badge-life">生活</span>');
     html+='<button class="del" onclick="delTask('+t.id+')">x</button>';
     html+="</div>";}
     list.innerHTML=html;}
@@ -139,13 +139,16 @@ function openReview(){
   if(total>0){
     var dn=[];for(var i=0;i<done.length;i++)dn.push(done[i].name);
     var pn=[];for(var i=0;i<pending.length;i++)pn.push(pending[i].name);
-    autoLog+="今日工作总结："+String.fromCharCode(10);
-    if(done.length)autoLog+="收获：完成"+dn.join("、")+"。"+String.fromCharCode(10);
-    if(pending.length)autoLog+="不足："+pn.join("、")+"尚未完成。"+String.fromCharCode(10);
-    autoLog+=String.fromCharCode(10)+"明日计划："+String.fromCharCode(10);
-    if(pending.length)autoLog+="1. 继续："+pn.join("、")+String.fromCharCode(10);
-    autoLog+="2. 其他："+String.fromCharCode(10);
-  }
+    autoLog+=String.fromCharCode(10)+"=== 今日工作总结 ==="+String.fromCharCode(10)+String.fromCharCode(10);
+    autoLog+="【收获】"+String.fromCharCode(10);
+    if(done.length){autoLog+="今日完成工作任务"+done.length+"项："+dn.join("、")+String.fromCharCode(10);}else{autoLog+="今日未完成任何工作任务"+String.fromCharCode(10);}
+    autoLog+=String.fromCharCode(10);
+    autoLog+="【不足】"+String.fromCharCode(10);
+    if(pending.length){autoLog+="未完成工作任务"+pending.length+"项："+pn.join("、")+String.fromCharCode(10);}else{autoLog+="所有工作任务均已完成，表现优秀！"+String.fromCharCode(10);}
+    autoLog+=String.fromCharCode(10);
+    autoLog+="【明日计划】"+String.fromCharCode(10);
+    if(pending.length)autoLog+="- 继续推进："+pn.join("、")+String.fromCharCode(10);
+    autoLog+="- 其他安排："+String.fromCharCode(10);
   var existing=data.l[date]||"";
   html+='<textarea class="log-text" id="logText" placeholder="写下今天的总结...">'+es(existing||autoLog)+'</textarea>';
   html+='<button class="btn-save" onclick="saveReview()">保存日志</button>';
