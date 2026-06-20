@@ -122,8 +122,8 @@ a{color:#3b82f6;text-decoration:none}
     </div>
   </div>
   <div class="footer">
-    <button>今日复盘</button>
-    <button>历史记录</button>
+    <button onclick="openReview()">今日复盘</button>
+    <button onclick="openHistory()">历史记录</button>
   </div>
 </div>
 
@@ -424,6 +424,26 @@ document.addEventListener('click', function(ev) {
     var txt = el.textContent.trim();
     if (txt === '今日复盘') { openReview(); ev.preventDefault(); return; }
     if (txt === '历史记录') { openHistory(); ev.preventDefault(); return; }
+    el = el.parentElement;
+  }
+});
+
+document.addEventListener('click', function(ev) {
+  var el = ev.target;
+  while (el && el !== document.body) {
+    if (el.classList.contains('task-check') || el.classList.contains('task-name')) {
+      var li = el.closest('.task-item');
+      if (li) toggle(parseInt(li.getAttribute('data-id')));
+      ev.preventDefault(); return;
+    }
+    if (el.classList.contains('task-del')) {
+      var li = el.closest('.task-item');
+      if (li) delTask(parseInt(li.getAttribute('data-id')));
+      ev.preventDefault(); return;
+    }
+    if (el.classList.contains('add-btn')) { addTask(); ev.preventDefault(); return; }
+    if (el.classList.contains('review-save')) { saveReview(); ev.preventDefault(); return; }
+    if (el.classList.contains('modal-overlay')) { el.classList.remove('open'); return; }
     el = el.parentElement;
   }
 });
