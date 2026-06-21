@@ -343,17 +343,33 @@
       var raw = (text || "").trim();
       if(!raw) return "";
       var parts = raw.split(/[\n。！？!?；;]+/).map(function(s){return s.trim();}).filter(Boolean);
-      var useful = parts.slice(0, 6);
-      if(!useful.length) useful = [raw];
+      var focus = parts.slice(0, 5);
+      if(!focus.length) focus = [raw];
+      function tidy(s){
+        return s
+          .replace(/^\s*[一二三四五六七八九十\d]+[\.、)]?\s*/, "")
+          .replace(/(今天|本次|这次|本周|本阶段)?(我|我们)/g, "我")
+          .replace(/已经/g, "基本")
+          .replace(/完成了/g, "推进了")
+          .replace(/处理了/g, "梳理了")
+          .replace(/解决了/g, "处理好了")
+          .replace(/安排/g, "推进")
+          .replace(/问题/g, "事项")
+          .replace(/任务/g, "工作项")
+          .replace(/情况/g, "进展")
+          .replace(/，+/g, "，")
+          .replace(/。+/g, "。")
+          .trim();
+      }
       var result = [];
-      result.push("今天主要推进了工作任务，整体节奏基本明确。");
-      result.push("具体来说：");
-      useful.forEach(function(item, index){
-        var line = item.replace(/我/g, "本次").replace(/我们/g, "团队").replace(/已经/g, "基本").replace(/完成了/g, "推进了").replace(/处理了/g, "梳理了").replace(/解决了/g, "处理好了").replace(/问题/g, "事项").replace(/任务/g, "工作项");
-        if(line && line !== raw) result.push("- " + line);
-        else result.push("- " + item);
+      result.push("今天围绕工作项做了推进，整体节奏比之前更清晰。");
+      result.push("主要内容如下：");
+      focus.forEach(function(item){
+        var line = tidy(item);
+        if(line.length > 32) line = line.slice(0, 32) + "…";
+        result.push("- " + line);
       });
-      result.push("后续我会继续跟进，尽量把节奏和结果都稳住。");
+      result.push("整体来看，当前进展是有的，但后续还需要继续跟进，确保结果落地。");
       return result.join("\n");
     }
 
