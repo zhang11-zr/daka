@@ -70,8 +70,10 @@
     .field:first-child{margin-top:0}
     .field label{display:block;font-size:13px;font-weight:700;color:#475569;margin-bottom:7px}
     .field textarea{width:100%;min-height:76px;resize:vertical;border:1px solid #dbe3ef;border-radius:8px;padding:11px 12px;outline:none;line-height:1.45;color:#1f2937;background:#fff}
-    .log-text{min-height:180px!important}
+    .log-text{min-height:140px!important;max-height:180px!important;overflow:auto}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .rewrite-box{display:grid;gap:12px;margin-top:14px}
+    .rewrite-output{min-height:110px!important;max-height:150px!important;background:#f8fafc;overflow:auto}
     .history-item{padding:14px 0;border-bottom:1px solid #eef2f7}
     .history-item:last-child{border-bottom:0}
     .history-date{font-size:14px;font-weight:800;color:#334155}
@@ -337,6 +339,24 @@
       return lines.join("\n");
     }
 
+    function rewriteStyle(text){
+      var raw = (text || "").trim();
+      if(!raw) return "";
+      var parts = raw.split(/[\n。！？!?；;]+/).map(function(s){return s.trim();}).filter(Boolean);
+      var useful = parts.slice(0, 6);
+      if(!useful.length) useful = [raw];
+      var result = [];
+      result.push("今天主要推进了工作任务，整体节奏基本明确。");
+      result.push("具体来说：");
+      useful.forEach(function(item, index){
+        var line = item.replace(/我/g, "本次").replace(/我们/g, "团队").replace(/已经/g, "基本").replace(/完成了/g, "推进了").replace(/处理了/g, "梳理了").replace(/解决了/g, "处理好了").replace(/问题/g, "事项").replace(/任务/g, "工作项");
+        if(line && line !== raw) result.push("- " + line);
+        else result.push("- " + item);
+      });
+      result.push("后续我会继续跟进，尽量把节奏和结果都稳住。");
+      return result.join("\n");
+    }
+
     function renderReview(){
       var date = todayKey();
       var state = getWorkState(date);
@@ -367,9 +387,29 @@
           '<div class="field"><label for="shortcomingsInput">今天的不足</label><textarea id="shortcomingsInput" placeholder="例如：开始太晚、优先级不清、没有及时同步">' + escapeHtml(reflection.shortcomings || "") + '</textarea></div>' +
           '<div class="field"><label for="gainsInput">今日收获</label><textarea id="gainsInput" placeholder="例如：完成了关键事项、确认了下一步方向、提升了效率">' + escapeHtml(reflection.gains || "") + '</textarea></div>' +
         '</div>' +
+        '<div class="section"><h3>仿写功能</h3><div class="rewrite-box"><textarea class="field" id="rewriteSource" placeholder="把你想改写的工作日志贴在这里，例如日报、周报、会议记录"></textarea><textarea class="field rewrite-output" id="rewriteOutput" placeholder="仿写结果会显示在这里" readonly></textarea><div class="actions"><button class="secondary" id="rewriteBtn" type="button">仿写成我的口吻</button><button class="secondary" id="copyRewriteBtn" type="button">复制结果</button></div></div></div>' +
         '<div class="section"><h3>自动整理后的日志</h3><textarea class="field log-text" id="logText">' + escapeHtml(existingLog || "") + '</textarea></div>' +
         '<div class="actions"><button class="secondary" id="generateBtn" type="button">自动整理</button><button class="primary" id="saveReviewBtn" type="button">保存复盘</button></div>';
 
+      document.getElementById("rewriteBtn").addEventListener("click", function(){
+        var source = document.getElementById("rewriteSource").value;
+        var output = rewriteStyle(source);
+        document.getElementById("rewriteOutput").value = output || "请先输入一段工作日志。";
+        if(output) document.getElementById("logText").value = output;
+        showToast(output ? "已仿写" : "请先输入内容");
+      });
+      document.getElementById("copyRewriteBtn").addEventListener("click", function(){
+        var output = document.getElementById("rewriteOutput").value.trim();
+        if(!output || output === "请先输入一段工作日志。"){
+          showToast("没有可复制内容");
+          return;
+        }
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(output).then(function(){showToast("已复制");}).catch(function(){showToast("复制失败");});
+        }else{
+          showToast("当前浏览器不支持复制");
+        }
+      });
       document.getElementById("generateBtn").addEventListener("click", function(){
         document.getElementById("logText").value = buildSummary();
         showToast("已整理");
