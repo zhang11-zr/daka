@@ -1,3 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>每日打卡</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:#f8fafc;color:#1f2937;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Arial,sans-serif;padding:16px}
+    button,input,textarea{font:inherit}
+    button{touch-action:manipulation}
+    .app{max-width:520px;margin:0 auto;padding-bottom:24px}
+    .hero{background:#3b82f6;color:#fff;border-radius:8px;padding:20px;margin-bottom:14px;box-shadow:0 8px 22px rgba(37,99,235,.18)}
+    .date{font-size:14px;opacity:.9;margin-bottom:6px}
+    .title{font-size:24px;font-weight:700;line-height:1.2}
+    .progress-row{display:flex;align-items:center;gap:12px;margin-top:16px}
+    .count{font-size:24px;font-weight:800;min-width:70px}
+    .count small{font-size:15px;font-weight:600;opacity:.8}
+    .bar{height:8px;flex:1;border-radius:999px;background:rgba(255,255,255,.28);overflow:hidden}
+    .bar-fill{height:100%;width:0;background:#fff;border-radius:999px;transition:width .25s ease}
+    .card{background:#fff;border:1px solid #eef2f7;border-radius:8px;box-shadow:0 2px 12px rgba(15,23,42,.05);margin-bottom:14px;overflow:hidden}
+    .card-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px 8px}
+    .card-title{font-size:14px;font-weight:700;color:#475569}
+    .task-list{min-height:64px}
+    .empty{padding:32px 18px;color:#94a3b8;text-align:center;font-size:14px}
+    .task{display:flex;align-items:center;gap:12px;padding:14px 18px;border-top:1px solid #f1f5f9}
+    .task.done .task-name{text-decoration:line-through;color:#94a3b8}
+    .box{width:24px;height:24px;border-radius:6px;border:2px solid #cbd5e1;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .box.checked{background:#3b82f6;border-color:#3b82f6}
+    .box.checked:after{content:"";width:7px;height:12px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+    .task-main{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+    .task-name{font-size:15px;line-height:1.35;word-break:break-word}
+    .tag{font-size:12px;line-height:1;padding:5px 8px;border-radius:999px;white-space:nowrap}
+    .tag.work{background:#dbeafe;color:#1d4ed8}
+    .tag.life{background:#f1f5f9;color:#64748b}
+    .delete{width:32px;height:32px;border:0;background:#fff;color:#94a3b8;border-radius:6px;font-size:20px;line-height:1}
+    .delete:active{background:#fee2e2;color:#dc2626}
+    .add{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px 18px;border-top:1px solid #f1f5f9}
+    .add input[type=text]{width:100%;min-width:0;border:1px solid #dbe3ef;border-radius:8px;padding:12px 12px;outline:none;background:#fff}
+    .add input[type=text]:focus,.field textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+    .add-options{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .work-check{display:flex;align-items:center;gap:8px;color:#475569;font-size:14px}
+    .work-check input{width:18px;height:18px;accent-color:#3b82f6}
+    .primary,.secondary{border:0;border-radius:8px;padding:11px 16px;font-weight:700}
+    .primary{background:#3b82f6;color:#fff}
+    .secondary{background:#eef2f7;color:#334155}
+    .footer{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .footer button{border:1px solid #dbe3ef;background:#fff;color:#334155;border-radius:8px;padding:13px 10px;font-weight:700}
+    .overlay{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;background:rgba(15,23,42,.45);padding:16px;z-index:10}
+    .overlay.open{display:flex}
+    .modal{width:100%;max-width:560px;max-height:88vh;overflow:auto;background:#fff;border-radius:8px;box-shadow:0 18px 50px rgba(15,23,42,.22)}
+    .modal-head{position:sticky;top:0;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #eef2f7;z-index:1}
+    .modal-head h2{font-size:18px}
+    .close{width:34px;height:34px;border:0;border-radius:8px;background:#f1f5f9;color:#475569;font-size:22px;line-height:1}
+    .modal-body{padding:16px 18px 18px}
+    .stat{background:#3b82f6;color:#fff;border-radius:8px;padding:16px;margin-bottom:16px}
+    .stat-top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+    .stat-num{font-size:30px;font-weight:800}
+    .stat-note{font-size:13px;opacity:.9;text-align:right}
+    .mini-bar{height:7px;background:rgba(255,255,255,.3);border-radius:999px;overflow:hidden;margin-top:10px}
+    .mini-bar span{display:block;height:100%;width:0;background:#fff;border-radius:999px}
+    .section{margin:16px 0}
+    .section h3{font-size:14px;color:#475569;margin-bottom:9px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px}
+    .chip{display:inline-flex;align-items:center;max-width:100%;padding:7px 10px;border-radius:999px;font-size:14px;line-height:1.25;word-break:break-word}
+    .chip.done{background:#ecfdf5;color:#047857}
+    .chip.pending{background:#fef2f2;color:#b91c1c}
+    .review-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-top:14px}
+    .field{margin-top:12px}
+    .field:first-child{margin-top:0}
+    .field label{display:block;font-size:13px;font-weight:700;color:#475569;margin-bottom:7px}
+    .field textarea{width:100%;min-height:76px;resize:vertical;border:1px solid #dbe3ef;border-radius:8px;padding:11px 12px;outline:none;line-height:1.45;color:#1f2937;background:#fff}
+    .log-text{min-height:180px!important}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .history-item{padding:14px 0;border-bottom:1px solid #eef2f7}
+    .history-item:last-child{border-bottom:0}
+    .history-date{font-size:14px;font-weight:800;color:#334155}
+    .history-stats{font-size:13px;color:#64748b;margin-top:3px}
+    .history-log{white-space:pre-wrap;background:#f8fafc;border:1px solid #eef2f7;border-radius:8px;padding:10px;margin-top:10px;color:#475569;font-size:13px;line-height:1.55}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#111827;color:#fff;border-radius:8px;padding:11px 18px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+    @media (max-width:420px){
+      body{padding:12px}
+      .hero{padding:18px 16px}
+      .task,.card-head,.add,.modal-body,.modal-head{padding-left:14px;padding-right:14px}
+      .add{grid-template-columns:1fr}
+      .primary,.secondary{width:100%}
+      .footer{grid-template-columns:1fr}
+      .overlay{padding:10px}
+      .modal{max-height:92vh}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="date" id="dateDisplay"></div>
+      <h1 class="title">每日打卡</h1>
+      <div class="progress-row">
+        <div class="count" id="progressNum">0/<small>0</small></div>
+        <div class="bar"><div class="bar-fill" id="progressFill"></div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><div class="card-title">今日任务</div></div>
+      <div class="task-list" id="taskList"></div>
+      <div class="add">
+        <input id="taskInput" type="text" maxlength="50" placeholder="输入新任务">
+        <button class="primary" id="addBtn" type="button">添加</button>
+        <div class="add-options">
+          <label class="work-check"><input id="workToggle" type="checkbox"> 工作任务</label>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <button id="reviewBtn" type="button">今日复盘</button>
+      <button id="historyBtn" type="button">历史记录</button>
+    </div>
+  </main>
+
+  <div class="overlay" id="reviewOverlay">
+    <section class="modal">
+      <div class="modal-head">
+        <h2>今日工作复盘</h2>
+        <button class="close" id="closeReview" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body" id="reviewBody"></div>
+    </section>
+  </div>
+
+  <div class="overlay" id="historyOverlay">
+    <section class="modal">
+      <div class="modal-head">
+        <h2>历史记录</h2>
+        <button class="close" id="closeHistory" type="button" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body" id="historyBody"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    var STORE_KEY = "dk_data";
+    var WEEK = ["日","一","二","三","四","五","六"];
+
+    function todayKey(){
+      var d = new Date();
+      var y = d.getFullYear();
+      var m = String(d.getMonth() + 1).padStart(2, "0");
+      var day = String(d.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + day;
+    }
+
+    function loadData(){
+      var base = {t:[], n:1, c:{}, l:{}, r:{}};
+      try{
+        var raw = JSON.parse(localStorage.getItem(STORE_KEY));
+        if(!raw || typeof raw !== "object") return base;
+        raw.t = Array.isArray(raw.t) ? raw.t : [];
+        raw.n = Number(raw.n) || (raw.t.length + 1);
+        raw.c = raw.c && typeof raw.c === "object" ? raw.c : {};
+        raw.l = raw.l && typeof raw.l === "object" ? raw.l : {};
+        raw.r = raw.r && typeof raw.r === "object" ? raw.r : {};
+        return raw;
+      }catch(e){
+        return base;
+      }
+    }
+
+    function saveData(data){
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    }
+
+    function escapeHtml(text){
+      var node = document.createElement("div");
+      node.textContent = text == null ? "" : String(text);
+      return node.innerHTML;
+    }
+
+    function showToast(text){
+      var toast = document.getElementById("toast");
+      toast.textContent = text;
+      toast.style.opacity = "1";
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(function(){toast.style.opacity = "0";}, 1800);
+    }
+
+    function render(){
+      var data = loadData();
+      var date = todayKey();
+      var checked = data.c[date] || [];
+      var tasks = data.t;
+      var list = document.getElementById("taskList");
+
+      if(!tasks.length){
+        list.innerHTML = '<div class="empty">添加你的第一项任务吧</div>';
+      }else{
+        list.innerHTML = tasks.map(function(task){
+          var done = checked.indexOf(task.id) >= 0;
+          return '<div class="task' + (done ? ' done' : '') + '" data-task-id="' + task.id + '">' +
+            '<button class="box' + (done ? ' checked' : '') + '" type="button" data-action="toggle" aria-label="切换完成"></button>' +
+            '<div class="task-main" data-action="toggle">' +
+              '<span class="task-name">' + escapeHtml(task.name) + '</span>' +
+              '<span class="tag ' + (task.w ? 'work' : 'life') + '">' + (task.w ? '工作任务' : '生活') + '</span>' +
+            '</div>' +
+            '<button class="delete" type="button" data-action="delete" aria-label="删除">×</button>' +
+          '</div>';
+        }).join("");
+      }
+
+      var doneCount = checked.filter(function(id){
+        return tasks.some(function(task){return task.id === id;});
+      }).length;
+      var total = tasks.length;
+      document.getElementById("progressNum").innerHTML = doneCount + "/<small>" + total + "</small>";
+      document.getElementById("progressFill").style.width = total ? (doneCount / total * 100) + "%" : "0%";
+
+      var now = new Date();
+      document.getElementById("dateDisplay").textContent =
+        now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日 星期" + WEEK[now.getDay()];
+    }
+
+    function addTask(){
+      var input = document.getElementById("taskInput");
+      var name = input.value.trim();
+      if(!name){
+        showToast("请输入任务名称");
+        input.focus();
+        return;
+      }
+      var data = loadData();
+      data.t.push({id:data.n++, name:name, w:document.getElementById("workToggle").checked});
+      saveData(data);
+      input.value = "";
+      document.getElementById("workToggle").checked = false;
+      render();
+      showToast("已添加");
+    }
+
+    function toggleTask(id){
+      var data = loadData();
+      var date = todayKey();
+      if(!Array.isArray(data.c[date])) data.c[date] = [];
+      var index = data.c[date].indexOf(id);
+      if(index >= 0) data.c[date].splice(index, 1);
+      else data.c[date].push(id);
+      saveData(data);
+      render();
+    }
+
+    function deleteTask(id){
+      if(!confirm("确认删除这个任务？")) return;
+      var data = loadData();
+      data.t = data.t.filter(function(task){return task.id !== id;});
+      Object.keys(data.c).forEach(function(date){
+        data.c[date] = data.c[date].filter(function(taskId){return taskId !== id;});
+      });
+      saveData(data);
+      render();
+      showToast("已删除");
+    }
+
+    function getWorkState(date){
+      var data = loadData();
+      var checked = data.c[date] || [];
+      var work = data.t.filter(function(task){return task.w;});
+      var done = work.filter(function(task){return checked.indexOf(task.id) >= 0;});
+      var pending = work.filter(function(task){return checked.indexOf(task.id) < 0;});
+      return {data:data, checked:checked, work:work, done:done, pending:pending};
+    }
+
+    function names(list){
+      return list.map(function(task){return task.name;});
+    }
+
+    function completionText(percent){
+      if(percent === 100) return "工作任务全部完成，节奏保持得不错。";
+      if(percent >= 70) return "主要工作已经推进完成，剩余事项需要安排收尾。";
+      if(percent >= 40) return "今天有明确推进，但仍有一部分任务需要继续跟进。";
+      if(percent > 0) return "今天完成了一部分工作，明天需要把优先级再收紧。";
+      return "今天工作任务还没有完成记录，需要复盘阻碍并重新安排。";
+    }
+
+    function buildSummary(){
+      var date = todayKey();
+      var state = getWorkState(date);
+      var total = state.work.length;
+      var doneCount = state.done.length;
+      var percent = total ? Math.round(doneCount / total * 100) : 0;
+      var doneNames = names(state.done);
+      var pendingNames = names(state.pending);
+      var problems = document.getElementById("problemsInput") ? document.getElementById("problemsInput").value.trim() : "";
+      var shortcomings = document.getElementById("shortcomingsInput") ? document.getElementById("shortcomingsInput").value.trim() : "";
+      var gains = document.getElementById("gainsInput") ? document.getElementById("gainsInput").value.trim() : "";
+
+      var lines = [];
+      lines.push("【今日工作复盘】");
+      lines.push("");
       lines.push("复盘点：" + completionText(percent));
       lines.push("工作任务完成：" + doneCount + "/" + total + (total ? "，完成率 " + percent + "%" : ""));
       lines.push("");
